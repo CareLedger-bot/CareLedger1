@@ -5,8 +5,15 @@ Project Overview
 CareLedger is a Python and SQLite healthcare-record management prototype designed to explore how technology can improve the organisation, accessibility and protection of medical information.
 
 The project uses fictional patient information and demonstrates software development, database management and cybersecurity concepts.
+## Independent Academic Research
 
-Key Features
+I investigated NHS England's Single Patient Record plans, electronic patient-record security, access controls and audit trails.
+
+I compared NHS and ICO guidance with my CareLedger prototype, identifying its limitations and proposing improvements to record-change accountability.
+
+[Read my NHS research report](RESEARCH.md)
+
+## Key Features
 
 * Patient Management: Add, search, view and update patient records.
 * Access Control: Different user permissions for administrators, clinicians and viewers.
