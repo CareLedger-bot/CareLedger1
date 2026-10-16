@@ -1,0 +1,34 @@
+CareLedger — Testing Results
+
+Testing Overview
+
+CareLedger was tested using Python’s unittest framework to assess functionality, reliability, data validation and access permissions.
+
+Results: 12 tests passed, 0 failures, 0 errors.
+
+Features Tested
+
+* Patient record creation, searching and updating
+* User authentication and password verification
+* Role-based access permissions
+* Audit trails and record-change history
+* Input validation and error handling
+* SQL injection protection
+* HTML output escaping
+* CSRF protection
+* Login failure handling
+* Database functionality
+
+Testing Command
+
+python -m unittest discover -s tests -v
+
+Evaluation
+
+The automated tests passed in the development environment. These results demonstrate that the tested features behaved as expected.
+
+Further security, performance and usability testing would be necessary before considering real-world use.
+
+Limitations
+
+CareLedger is an educational prototype using fictional patient data. It is not suitable for storing real medical records or clinical deployment.
