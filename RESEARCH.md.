@@ -1,0 +1,350 @@
+Research Report: Designing Accountable and Secure Electronic Patient Records
+
+Project: CareLedger — Python and SQLite Healthcare-Record Prototype
+
+Research date: 16 October 2026
+
+Research question: How can electronic patient records improve continuity of care and accountability while preserving confidentiality, accuracy and appropriate access?
+
+Research methodology: Desk-based analysis of published NHS England, NHS Digital and Information Commissioner’s Office (ICO) guidance, combined with a technical evaluation of the available CareLedger source code and automated tests.
+
+Research integrity: This report was prepared and reviewed with AI assistance. The technical comparison concerns an educational prototype rather than a deployed healthcare system. Proposed features are distinguished from implemented functionality. Only fictional patient information is used.
+
+⸻
+
+Executive Summary
+
+Electronic patient records offer benefits beyond replacing paper documentation: they can improve the availability of information across care settings, reduce fragmentation and support accountability through records of how information is accessed and modified. Nevertheless, digital storage does not automatically guarantee accuracy, confidentiality or security. Trustworthy healthcare systems must combine interoperable information, authenticated and appropriately authorised access, traceable amendments and risk-based cybersecurity safeguards.
+
+This research examines these principles and compares them with CareLedger, an educational healthcare-record prototype developed using Python and SQLite. The application demonstrates persistent fictional records, role-based permissions, input validation and basic change logging.
+
+A significant limitation is that the existing audit trail identifies which fields have changed without retaining their previous values or documenting the reasons for amendments.
+
+The most valuable proposed improvement is therefore an appointment-record revision history that preserves previous and updated values, identifies the responsible account and records the time and reason for changes.
+
+This extension is a proposed design and has not yet been implemented or tested.
+
+1. NHS England’s Single Patient Record: Access Without Oversimplifying Storage
+
+NHS England is developing its Single Patient Record (SPR) programme to make information from different healthcare settings more accessible to patients and authorised healthcare professionals. The programme aims to reduce fragmented information, conflicting records and difficulties accessing relevant medical histories.
+
+NHS England has described an ambition for patients to begin accessing SPR information through the NHS App from 2028, subject to further development and implementation. This remains a planned milestone rather than confirmation of a completed national service. [1][2]
+
+A single accessible patient record should not be confused with a single central database. Healthcare organisations maintain different electronic record systems, so meaningful integration depends on agreed data standards, reliable patient identification, appropriate authorisation and the ability to determine which information is current.
+
+NHS England’s Shared Care Records similarly demonstrate how information from different healthcare organisations can be made available for authorised direct care. [3]
+
+Technical Significance
+
+Availability is not simply whether a database is operational. Information must also be discoverable, understandable and accessible when healthcare professionals need it.
+
+For example, if a patient receives treatment from different hospitals, clinicians may require relevant information previously recorded by another organisation. Incomplete or inaccessible information could delay decisions or result in unnecessary duplication.
+
+This illustrates that reliable healthcare technology depends on both the integrity of stored information and the infrastructure supporting access to it.
+
+CareLedger Comparison
+
+CareLedger uses SQLite to demonstrate persistent storage and retrieval of fictional patient information. However, it does not provide cross-organisational interoperability, NHS identity services or clinical record reconciliation.
+
+The comparison demonstrates the distinction between a functioning local database and a secure national healthcare information system.
+
+2. Interoperability: How Separate Systems Exchange Information
+
+Interoperability describes the ability of different computer systems to exchange information and interpret it meaningfully.
+
+NHS developer guidance describes Fast Healthcare Interoperability Resources (FHIR), an international standard for exchanging healthcare information. FHIR defines structures such as Patient and Observation and establishes conventions for accessing information through application programming interfaces (APIs). [4]
+
+Examples of NHS services include:
+
+Service/API	Purpose
+Personal Demographics Service	Supports patient identification and demographic information
+Summary Care Record FHIR API	Provides access to important summary clinical information
+National Record Locator FHIR API	Helps identify records held by other healthcare organisations
+Care Identity Service	Supports authentication and identification of healthcare professionals
+
+The Summary Care Record and National Record Locator APIs illustrate how information can be retrieved or located across separate healthcare services. [5][6]
+
+Technical Significance
+
+Different software systems may store clinically equivalent information using different formats, terminology or database structures.
+
+Without standardisation, one system might successfully retrieve information from another but interpret its meaning incorrectly.
+
+FHIR helps address this through standardised information models and exchange methods. However, interoperability also introduces security and accuracy challenges.
+
+Systems must establish whether users are authorised, whether the correct patient has been identified and whether information remains accurate when transferred between organisations.
+
+CareLedger Comparison
+
+CareLedger’s patients table and search functionality demonstrate basic local data management.
+
+However, these are not FHIR-compatible interfaces, and the programme’s fictional patient identifiers are not NHS numbers.
+
+A potential future extension would involve mapping fictional records to a simplified FHIR-inspired data structure.
+
+No NHS-connected API is currently implemented.
+
+3. Access Control, Legitimate Purpose and Auditability
+
+Role-based access control (RBAC) restricts the actions users can perform according to their authorised responsibilities.
+
+NHS systems use access-management approaches to ensure healthcare staff receive appropriate functionality. However, having a healthcare account does not automatically provide a legitimate reason to access every patient’s information.
+
+Staff should access records only where they have an appropriate care-related, professional or otherwise lawful purpose. NHS guidance also emphasises the importance of checking records of access for potentially inappropriate activity. [7][8]
+
+RBAC establishes what an account is generally permitted to do. It does not necessarily establish whether a user should access a particular patient’s record at a specific time.
+
+Both considerations are important for confidentiality.
+
+Current CareLedger Implementation
+
+The available prototype uses three demonstration roles:
+
+* Administrator: Permitted to create, retrieve and update fictional patient records.
+* Clinician: Permitted to create, retrieve and update authorised fictional records.
+* Viewer: Permitted to read records without modifying them.
+
+These roles demonstrate basic authorisation through permissions.
+
+The SQLite audit table records CREATED and UPDATED actions, the responsible account, UTC timestamp and names of modified fields.
+
+However, the current implementation does not record individual record views or directory searches.
+
+Clinicians are also not restricted to assigned patients or required to demonstrate a specific care relationship before viewing clinical information.
+
+Critical Evaluation
+
+Basic RBAC is useful for limiting certain unauthorised actions, but healthcare-grade security requires more sophisticated authorisation.
+
+A production system would need mechanisms for restricting access according to legitimate purposes, identifying suspicious activity and protecting audit records from unauthorised alteration.
+
+CareLedger’s existing audit table can also be modified by someone with direct control of the SQLite database file.
+
+This demonstrates that application-level permissions and tamper-resistant record-keeping are separate security challenges.
+
+4. Privacy, Information Security and Data Protection
+
+The ICO explains that identifiable health information is classified as special-category personal data under UK GDPR.
+
+Organisations processing this information ordinarily require both an appropriate Article 6 lawful basis and an Article 9 special-category condition, together with relevant safeguards.
+
+Authentication or password protection alone does not establish lawful processing or adequate security. [9]
+
+The ICO recommends security measures proportionate to the risks associated with the information being processed.
+
+Relevant safeguards include authentication, restricted permissions, appropriate activity logging, protection against loss and regular security testing.
+
+Encryption can protect information in storage and during transmission. Although UK GDPR does not require encryption in every situation, its suitability should be assessed according to the risks involved. [10][11]
+
+Security Measures Demonstrated by CareLedger
+
+The existing educational prototype includes introductory protections such as:
+
+* Salted PBKDF2 password hashing.
+* Parameterised SQL queries.
+* Server-side role-based permission checks.
+* HTML output escaping.
+* Input validation.
+* Cross-site request forgery (CSRF) checking.
+* Short-lived session tokens.
+* Basic audit logging.
+
+These demonstrate important principles of defensive programming.
+
+However, they do not establish that the application is suitable for real healthcare use.
+
+Current Security Limitations
+
+CareLedger’s SQLite database file is not encrypted. The programme uses shared demonstration credentials and does not incorporate multifactor authentication, verified healthcare-worker identities, managed backups or comprehensive intrusion monitoring.
+
+It also lacks the governance and operational controls necessary for a production healthcare system.
+
+Consequently, the application must use fictional information only.
+
+Evaluation
+
+Security should be assessed as a combination of technical controls rather than a single feature.
+
+For example, parameterised SQL queries help reduce SQL injection risks but do not protect an unencrypted database file against someone who gains direct filesystem access.
+
+Similarly, role permissions restrict application actions but cannot independently prevent inappropriate access where authorisation rules are insufficiently detailed.
+
+This demonstrates why effective cybersecurity requires layered protection, continuous assessment and consideration of how vulnerabilities interact.
+
+5. A Research Finding With Direct Design Implications: Preserving Corrections
+
+One particularly significant research finding concerns amendments to medical records.
+
+NHS guidance explains that when inaccurate clinical information is corrected, the original entry must remain readable. This is important because healthcare professionals may already have relied on that information when making treatment decisions.
+
+Retrospective amendments should also include an explanation, and electronic systems should maintain an audit trail. [12]
+
+This raises an important question about accountability: is recording that a change occurred sufficient if the system does not preserve what changed?
+
+An audit entry stating that an appointment date was updated is less informative than a revision history identifying:
+
+* The original appointment date.
+* The revised appointment date.
+* The account responsible for the change.
+* The time of the amendment.
+* The reason for the correction.
+
+Although appointment scheduling is not equivalent to amending a clinical diagnosis or treatment record, it provides a manageable educational example of preserving information history.
+
+Technical and Ethical Considerations
+
+Retaining previous values can strengthen accountability by allowing authorised reviewers to reconstruct changes.
+
+However, preserving historical information also increases the amount of potentially sensitive data stored.
+
+Revision histories therefore require appropriate access controls, retention decisions and protection against unauthorised modification.
+
+Importantly, even a detailed audit history cannot independently establish whether a medical event occurred correctly if information was never documented or was deliberately falsified.
+
+Digital accountability depends on accurate recording, professional responsibilities, technical safeguards and effective oversight.
+
+6. Research-Led Improvement Proposed for CareLedger
+
+Proposed feature: Appointment-Date Revision History
+
+Implementation status: NOT YET IMPLEMENTED OR TESTED
+
+CareLedger currently includes an appointment_date field and a generic audit log.
+
+The audit log records update activity but does not preserve the previous appointment date or require a reason for the amendment.
+
+Based on NHS guidance about maintaining an accurate history of record corrections, a useful next improvement would be a dedicated revision-history mechanism.
+
+Proposed Design
+
+1. Verify that the account is authorised to update the fictional patient record.
+2. Validate the proposed appointment date and require a meaningful reason for the change.
+3. Retrieve the existing appointment date and confirm that the value is changing.
+4. Update the patient record and insert a revision-history entry within the same SQLite transaction.
+5. Record the previous value, revised value, responsible account, UTC timestamp and reason.
+6. Roll back the transaction if either database operation fails.
+7. Restrict access to revision histories and prevent ordinary application users from deleting them.
+
+Using a single transaction is essential because a failed revision-history insertion should not leave the patient record changed without a corresponding audit entry.
+
+Proposed SQL Database Structure
+
+CREATE TABLE patient_revisions (
+    revision_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    patient_id INTEGER NOT NULL REFERENCES patients(id),
+    changed_by INTEGER NOT NULL REFERENCES users(id),
+    field_name TEXT NOT NULL CHECK (field_name = 'appointment_date'),
+    old_value TEXT NOT NULL,
+    new_value TEXT NOT NULL,
+    changed_at_utc TEXT NOT NULL,
+    reason TEXT NOT NULL
+);
+
+This table would store previous and revised appointment dates separately from the current patient record.
+
+The existing database schema and application update logic would also require modification.
+
+The design improves traceability at the application level but does not make the database tamper-proof. Someone with direct filesystem access could still potentially modify SQLite records.
+
+Proposed Testing Plan
+
+The following tests are planned for the extension but have not yet been implemented or run.
+
+Proposed test	Expected result
+Authorised appointment update	New value stored and revision preserves the previous value, account, timestamp and reason
+Viewer attempts unauthorised update	Permission denied; neither record nor revision history changes
+Invalid appointment date	Validation error; both tables remain unchanged
+Empty amendment reason	Update rejected without an incomplete revision
+Database write failure	Entire transaction rolled back
+Database closed and reopened	Current appointment and revision records persist
+Ordinary user attempts to delete history	No supported application function permits deletion
+
+These tests would provide evidence for the proposed improvement only after the functionality has been implemented and tested successfully.
+
+The existing 12 passing automated tests relate to the current educational prototype and do not validate this proposed extension.
+
+7. Critical Evaluation: CareLedger Compared With a Real Healthcare System
+
+Comparing the prototype with NHS and ICO guidance identifies both its educational strengths and its technical limitations.
+
+Requirement	Current CareLedger implementation	Limitation or proposed improvement
+Persistent patient records	Python and SQLite	No encrypted storage, managed backups or recovery infrastructure
+User authorisation	Administrator, clinician and viewer roles	No assigned-patient or legitimate-care-relationship checks
+Traceable modifications	Logs creation, updates and changed field names	No preserved previous values or amendment reasons
+Access monitoring	Basic modification logging	Individual views and directory searches are not logged
+Data validation	Checks selected required fields, dates and statuses	Further adversarial and domain-specific testing needed
+Interoperability	Single local database	No FHIR interface, NHS patient matching or cross-organisational integration
+Account security	Password hashing and demonstration sessions	Shared credentials, no MFA or identity lifecycle controls
+Clinical safety	12 automated tests passed in the development environment	No clinical hazard assessment or professional assurance
+
+NHS standard DCB0129 describes clinical risk management requirements relevant to manufacturers of healthcare IT systems. [13]
+
+Passing automated software tests does not establish that a system has undergone a clinical safety assessment, meets regulatory requirements or is suitable for actual patient care.
+
+Overall Evaluation
+
+CareLedger demonstrates foundational programming, database-management and cybersecurity concepts.
+
+Its main strength is providing a practical environment for investigating how fictional patient information can be created, retrieved and modified under different permissions.
+
+Its limitations also reveal important software-engineering challenges, especially in access governance, audit integrity, interoperability and clinical safety.
+
+These limitations should be treated as opportunities for further investigation rather than evidence of a completed secure healthcare product.
+
+Conclusion
+
+The central lesson from this research is that digitising information does not automatically make it accurate, secure or trustworthy.
+
+NHS England’s Single Patient Record plans demonstrate the potential value of accessible and interoperable information across healthcare settings.
+
+NHS guidance on authorisation and record amendments highlights why legitimate access, accurate corrections and traceable changes matter.
+
+ICO guidance reinforces the importance of lawful processing, confidentiality and safeguards proportionate to the risks involved.
+
+CareLedger demonstrates several of these principles on a small educational scale, but its limitations remain substantial.
+
+The most valuable next step is to develop and evaluate an appointment-record revision-history mechanism, test failure and unauthorised-access scenarios, and assess how the resulting design could be further protected.
+
+This investigation highlights an important distinction between developing software that functions correctly and designing systems that remain reliable, accountable and secure under different conditions.
+
+The progression from research to technical evaluation, proposed design and testing demonstrates how Computer Science combines programming with critical analysis and consideration of real-world consequences.
+
+The research also has a personal motivation: inadequate medical documentation can make the investigation of treatment errors and questions of accountability more difficult. Although technology cannot prevent every medical mistake, well-designed information systems can support accurate record-keeping, traceability and responsible decision-making.
+
+⸻
+
+References — Official NHS and ICO Sources
+
+The following references provide the official guidance used to prepare and check this report.
+
+1. NHS England — Single Patient Record
+2. NHS England — Single Patient Record: Public and Market Feedback
+3. NHS England — Shared Care Records
+4. NHS England Digital — Our API Technologies (FHIR)
+5. NHS England Digital — Summary Care Record FHIR API
+6. NHS England Digital — National Record Locator FHIR API
+7. NHS England Digital — Access and Authorisation
+8. NHS England Digital — Stopping Unlawful Access to Records
+9. ICO — Rules on Special Category Data
+10. ICO — Security Outcomes
+11. ICO — Encryption and Data Protection
+12. NHS England Digital — Amending Patient and Service User Records
+13. NHS Standards Directory — DCB0129 Clinical Risk Management
+
+⸻
+
+Project Status and Research Integrity
+
+Research date: 16 October 2026
+
+Project: CareLedger — Educational Healthcare-Record Prototype
+
+This report was prepared with AI assistance using published NHS England, NHS Digital and ICO guidance. Findings should be checked against the linked official sources.
+
+The prototype was developed with AI assistance and is intended for educational use with fictional patient information only.
+
+The proposed revision-history extension and its seven test cases have not been implemented or tested.
+
+The existing automated test results must not be interpreted as evidence of clinical safety, regulatory compliance or comprehensive cybersecurity protection.
+
+This report documents research, evaluation of an educational software prototype and proposed directions for further technical development.
