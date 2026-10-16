@@ -1,0 +1,2 @@
+# CareLedger uses only Python's standard library.
+# No third-party packages are required to run the application.
